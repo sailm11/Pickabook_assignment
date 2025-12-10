@@ -1,7 +1,7 @@
 import { useState } from "react";
-import "./App.css"; // we'll define styles below
+import "./App.css";
 
-const API_URL = "http://localhost:8000";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 function App() {
   const [mainImage, setMainImage] = useState(null);
@@ -70,111 +70,171 @@ function App() {
     }
   };
 
+  const handleDownload = () => {
+    if (!resultUrl) return;
+    const link = document.createElement("a");
+    link.href = resultUrl;
+    link.download = "instantid_result.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div className="app-root">
-      <div className="glass-card">
-        <header className="header">
-          <h1>InstantID Personalizer</h1>
-          <p>
-            Upload your main photo, optionally add a second image for
-            personalization, and let the magic happen ✨
-          </p>
-        </header>
+    <div className="page">
+      {/* top nav / brand bar */}
+      <nav className="nav">
+        <div className="nav-left">
+          <div className="logo-dot" />
+          <span className="logo-text">InstantID Studio</span>
+        </div>
+        <div className="nav-right">
+          <span className="nav-pill">beta</span>
+        </div>
+      </nav>
 
-        <form className="form" onSubmit={handleSubmit}>
-          {/* Main image (required) */}
-          <div className="field">
-            <label className="label">
-              Main Image <span className="chip chip-required">required</span>
-            </label>
-            <div className="upload-row">
-              <label className="upload-box">
-                <span>Click to upload</span>
-                <span className="upload-subtext">JPG / PNG</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleMainChange}
-                  hidden
-                />
-              </label>
-              {previewMain && (
-                <img
-                  src={previewMain}
-                  alt="Main preview"
-                  className="preview-img"
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Optional image */}
-          <div className="field">
-            <label className="label">
-              Personalization Image{" "}
-              <span className="chip chip-optional">optional</span>
-            </label>
-            <p className="hint">
-              If you add this, we’ll use it as a pose / style reference.
-              Otherwise we’ll just reuse the main image.
+      {/* main content */}
+      <main className="main-layout">
+        {/* left column – text + form */}
+        <section className="left-panel">
+          <header className="hero">
+            <h1>Create AI-personalized portraits in seconds</h1>
+            <p>
+              Upload your main photo, optionally add a personalization image for
+              pose / style, describe what you want – we’ll generate a unique
+              result for you.
             </p>
-            <div className="upload-row">
-              <label className="upload-box upload-box-ghost">
-                <span>Click to upload</span>
-                <span className="upload-subtext">JPG / PNG</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleOptionalChange}
-                  hidden
-                />
+          </header>
+
+          <form className="form" onSubmit={handleSubmit}>
+            {/* Main image (required) */}
+            <div className="field">
+              <label className="label">
+                Main image
+                <span className="chip chip-required">required</span>
               </label>
-              {previewOptional && (
+              <div className="upload-row">
+                <label className="upload-box">
+                  <span className="upload-title">Click to upload</span>
+                  <span className="upload-subtext">JPG / PNG</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleMainChange}
+                    hidden
+                  />
+                </label>
+                {previewMain && (
+                  <img
+                    src={previewMain}
+                    alt="Main preview"
+                    className="preview-img"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Optional image */}
+            <div className="field">
+              <label className="label">
+                Personalization image
+                <span className="chip chip-optional">optional</span>
+              </label>
+              <p className="hint">
+                Use this as a pose / style reference. If you skip it, we’ll
+                just reuse the main image.
+              </p>
+              <div className="upload-row">
+                <label className="upload-box upload-box-ghost">
+                  <span className="upload-title">Click to upload</span>
+                  <span className="upload-subtext">JPG / PNG</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleOptionalChange}
+                    hidden
+                  />
+                </label>
+                {previewOptional && (
+                  <img
+                    src={previewOptional}
+                    alt="Optional preview"
+                    className="preview-img"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Prompt */}
+            <div className="field">
+              <label className="label">Prompt</label>
+              <textarea
+                className="prompt-input"
+                rows={3}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="e.g. high-quality studio portrait, soft lighting, cinematic look"
+              />
+            </div>
+
+            {error && <div className="error-banner">{error}</div>}
+
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Generating..." : "Generate image"}
+            </button>
+          </form>
+        </section>
+
+        {/* right column – result preview */}
+        <section className="right-panel">
+          <div className="result-card">
+            <h2>Your preview</h2>
+            <p className="result-caption">
+              Generated image will appear here. You can open it in a new tab or
+              download it.
+            </p>
+
+            <div className="result-frame">
+              {resultUrl ? (
                 <img
-                  src={previewOptional}
-                  alt="Optional preview"
-                  className="preview-img"
+                  src={resultUrl}
+                  alt="Result"
+                  className="result-img"
                 />
+              ) : (
+                <div className="result-placeholder">
+                  <span>Waiting for your first generation ✨</span>
+                </div>
+              )}
+            </div>
+
+            <div className="result-actions">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={handleDownload}
+                disabled={!resultUrl}
+              >
+                Download image
+              </button>
+              {resultUrl && (
+                <a
+                  href={resultUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="link-open"
+                >
+                  Open full size ↗
+                </a>
               )}
             </div>
           </div>
-
-          {/* Prompt */}
-          <div className="field">
-            <label className="label">Prompt</label>
-            <textarea
-              className="prompt-input"
-              rows={3}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe how you want the image to look..."
-            />
-          </div>
-
-          {/* Error message */}
-          {error && <div className="error-banner">{error}</div>}
-
-          {/* Action button */}
-          <button
-            type="submit"
-            className="btn-primary"
-            disabled={loading}
-          >
-            {loading ? "Generating..." : "Generate Personalized Image"}
-          </button>
-        </form>
-
-        {/* Result */}
-        {resultUrl && (
-          <section className="result-section">
-            <h2>Your Result</h2>
-            <img src={resultUrl} alt="Result" className="result-img" />
-            <a href={resultUrl} target="_blank" rel="noreferrer" className="link">
-              Open full image ↗
-            </a>
-          </section>
-        )}
-      </div>
+        </section>
+      </main>
     </div>
   );
 }
