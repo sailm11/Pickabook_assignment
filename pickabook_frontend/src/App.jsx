@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 
-const API_URL =  "https://pickabook-backend-w3qu.onrender.com/" | "http://localhost:8000";
+const API_URL =  "https://pickabook-backend-w3qu.onrender.com"
 
 function App() {
   const STYLE_OPTIONS = [
