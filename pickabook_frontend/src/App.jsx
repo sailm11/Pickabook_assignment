@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const API_URL = "https://pickabook-backend-w3qu.onrender.com" || "http://localhost:8000";
 
 function App() {
   const [mainImage, setMainImage] = useState(null);
@@ -82,7 +82,7 @@ function App() {
 
   return (
     <div className="page">
-      {/* top nav / brand bar */}
+      
       <nav className="nav">
         <div className="nav-left">
           <div className="logo-dot" />
@@ -93,9 +93,9 @@ function App() {
         </div>
       </nav>
 
-      {/* main content */}
+     
       <main className="main-layout">
-        {/* left column – text + form */}
+       
         <section className="left-panel">
           <header className="hero">
             <h1>Create AI-personalized portraits in seconds</h1>
@@ -107,7 +107,7 @@ function App() {
           </header>
 
           <form className="form" onSubmit={handleSubmit}>
-            {/* Main image (required) */}
+           
             <div className="field">
               <label className="label">
                 Main image
