@@ -1,9 +1,24 @@
 import { useState } from "react";
 import "./App.css";
 
-const API_URL = "https://pickabook-backend-w3qu.onrender.com" || "http://localhost:8000";
+const API_URL =  "https://pickabook-backend-w3qu.onrender.com/" | "http://localhost:8000";
 
 function App() {
+  const STYLE_OPTIONS = [
+  "No style",
+  "Spring Festival",
+  "Watercolor",
+  "Film Noir",
+  "Neon",
+  "Jungle",
+  "Mars",
+  "Vibrant Color",
+  "Snow",
+  "Line art",
+];
+
+
+const [template, setTemplate] = useState("Line art");
   const [mainImage, setMainImage] = useState(null);
   const [optionalImage, setOptionalImage] = useState(null);
   const [prompt, setPrompt] = useState("make brighter picture");
@@ -18,6 +33,11 @@ function App() {
     setMainImage(file || null);
     setPreviewMain(file ? URL.createObjectURL(file) : null);
   };
+
+ 
+
+  
+
 
   const handleOptionalChange = (e) => {
     const file = e.target.files[0];
@@ -41,6 +61,7 @@ function App() {
       formData.append("image_optional", optionalImage);
     }
     formData.append("prompt", prompt);
+    formData.append("template",template);
 
     try {
       setLoading(true);
@@ -177,6 +198,24 @@ function App() {
               />
             </div>
 
+
+<div className="field">
+  <label className="label">Style / Template</label>
+  <select
+    className="select-style"
+    value={template}
+    onChange={(e) => setTemplate(e.target.value)}
+  >
+    {STYLE_OPTIONS.map((s) => (
+      <option key={s} value={s}>
+        {s}
+      </option>
+    ))}
+  </select>
+  <p className="hint">If you upload an optional image, it will override the style.</p>
+</div>
+
+
             {error && <div className="error-banner">{error}</div>}
 
             <button
@@ -207,7 +246,7 @@ function App() {
                 />
               ) : (
                 <div className="result-placeholder">
-                  <span>Waiting for your first generation ✨</span>
+                  <span>Waiting for your generation</span>
                 </div>
               )}
             </div>
